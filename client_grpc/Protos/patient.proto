@@ -1,0 +1,80 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+option csharp_namespace = "PatientGmt.PatientGrpcService";
+
+package patient;
+
+service PatientProto{
+  rpc GetPatientById (GetPatientByIdRequest) returns (GetPatientByIdResponse);
+  rpc GetAllPatients (Empty) returns (GetAllPatientsResponse);
+  rpc AddPatient (AddPatientRequest) returns (AddPatientResponse);
+  rpc UpdatePatient (UpdatePatientRequest) returns (UpdatePatientResponse);
+  rpc DeletePatient (DeletePatientRequest) returns (DeletePatientResponse);
+  rpc GetPatientRendezVous (GetPatientRendezVousRequest) returns (GetPatientRendezVousResponse);
+}
+
+message GetPatientByIdRequest {
+  int32 id = 1;
+}
+
+message GetPatientByIdResponse {
+  Patient patient = 1;
+}
+
+message AddPatientRequest {
+  Patient patient = 1;
+}
+
+message UpdatePatientRequest {
+  Patient patient = 1;
+}
+
+message DeletePatientRequest {
+  int32 id = 1;
+}
+
+message AddPatientResponse {
+  string message = 1;
+  int64 patientId = 2;
+}
+
+message UpdatePatientResponse{
+  string message = 1;
+}
+
+message DeletePatientResponse{
+  string message = 1;
+}
+    
+
+message Patient {
+  int32 id = 1;
+  string name = 2;
+  string address = 3;
+  string email = 4;
+  string phoneNumber = 5;
+  string gender = 6;
+}
+
+message Empty {}
+
+message GetAllPatientsResponse {
+  repeated Patient patients = 1;
+}
+
+// Message for the response containing rendezvous details
+message RendezVousDto {
+  int32 id = 1;
+  google.protobuf.Timestamp date = 2;
+  string doctorName = 3;
+}
+
+// Request message to get rendezvous by patientId
+message GetPatientRendezVousRequest {
+  int32 patientId = 1;
+}
+
+// Response message containing the list of rendezvous
+message GetPatientRendezVousResponse {
+  repeated RendezVousDto rendezVous = 1;
+}
