@@ -4,8 +4,7 @@ db = SQLAlchemy()
 
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    patient_name = db.Column(db.String(100), nullable=False)
-    #doctor_name = db.Column(db.String(100), nullable=False)
+    patient_id = db.Column(db.Integer, nullable=False)
     doctor_id = db.Column(db.Integer, nullable=False)  # ID du médecin
     appointment_date = db.Column(db.DateTime, nullable=False)
     notes = db.Column(db.Text, nullable=True)
