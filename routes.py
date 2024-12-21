@@ -131,3 +131,19 @@ def delete_appointment(id):
     db.session.delete(appointment)
     db.session.commit()
     return jsonify({"message": "Appointment deleted!"})
+
+
+
+# Récupérer tous les rendez-vous d'un médecin spécifique par son ID
+@routes.route("/appointments/medecin/<int:doctor_id>", methods=["GET"])
+def get_appointments_by_doctor(doctor_id):
+    appointments = Appointment.query.filter_by(doctor_id=doctor_id).all()
+    if not appointments:
+        return jsonify({"message": "No appointments found for this doctor"}), 404
+    return jsonify([{
+        "id": a.id,
+        "patient_name": a.patient_name,
+        "doctor_id": a.doctor_id,
+        "appointment_date": a.appointment_date.strftime("%Y-%m-%d"),
+        "notes": a.notes
+    } for a in appointments])
