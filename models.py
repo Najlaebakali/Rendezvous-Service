@@ -4,12 +4,16 @@ db = SQLAlchemy()
 
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    patient_name = db.Column(db.String(100), nullable=False)
-    #doctor_name = db.Column(db.String(100), nullable=False)
+    patient_id = db.Column(db.Integer, nullable=False)
     doctor_id = db.Column(db.Integer, nullable=False)  # ID du médecin
-    appointment_date = db.Column(db.DateTime, nullable=False)
+    appointment_date = db.Column(db.Date, nullable=False)  # Date uniquement
+    appointment_time = db.Column(db.Time, nullable=False)  # Heure exacte
     notes = db.Column(db.Text, nullable=True)
     is_cancelled = db.Column(db.Boolean, default=False)  # En cas d'annulation dun rendez-vous
 
+    __table_args__ = (
+        db.UniqueConstraint('doctor_id', 'appointment_date', name='unique_doctor_appointment'),
+    )
+
     def __repr__(self):
-        return f'<Appointment {self.id} - {self.patient_name} with {self.doctor_name}>'
+        return f'<Appointment {self.id} - Doctor {self.doctor_id} - Patient {self.patient_id}>'
