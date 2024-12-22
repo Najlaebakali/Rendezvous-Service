@@ -35,7 +35,16 @@ def get_patient_details(patient_id):
         return None  # En cas d'erreur, vous pouvez gérer l'erreur ici
     
 
-
+def update_patient(patient_data):
+    # Création de la requête gRPC pour la mise à jour du patient
+    request_patient = patient_pb2.UpdatePatientRequest(patient=patient_data)
+    patient_stub = get_patient_service_stub()
+    try:
+        # Exécuter l'appel RPC
+        response = patient_stub.UpdatePatient(request_patient)
+        return response, None  # Retourner l'objet de réponse complet
+    except grpc.RpcError as e:
+        return None, e.details()  # Retourner le détail de l'erreur
 """ #Ce fichier gère la communication avec le service gRPC PatientService pour ajouter un patient.
 
 #Connexion au service Patient (gRPC) :

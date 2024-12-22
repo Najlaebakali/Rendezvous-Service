@@ -4,6 +4,7 @@ from models import Appointment, db
 from datetime import datetime
 from client_grpc.Patient_Service import add_patient
 from client_grpc.Patient_Service import get_patient_details
+from client_grpc.Patient_Service import update_patient
 from client_grpc.Protos import patient_pb2, patient_pb2_grpc
 import grpc
 
@@ -186,21 +187,90 @@ def get_appointment(id):
         "notes": appointment.notes
     })
 
-# Mettre à jour un rendez-vous
-@routes.route("/appointments/<int:id>", methods=["PUT"])
-def update_appointment(id):
-    appointment = Appointment.query.get(id)
-    if appointment is None:
+@routes.route('/appointments/<int:appointment_id>', methods=['PUT'])
+def update_appointment(appointment_id):
+    data = request.json
+
+    # Try to retrieve the appointment by its ID
+    appointment = Appointment.query.get(appointment_id)
+    if not appointment:
         return jsonify({"message": "Appointment not found"}), 404
 
-    data = request.json
-    appointment.patient_name = data.get("patient_name", appointment.patient_name)
-    appointment.doctor_id = data.get("doctor_id", appointment.doctor_id)  # Utiliser doctor_id
-    appointment.appointment_date = datetime.strptime(data.get("appointment_date", appointment.appointment_date.strftime("%Y-%m-%d")), "%Y-%m-%d")
-    appointment.notes = data.get("notes", appointment.notes)
+    # Initialize patient_details with the current appointment's patient details
+    patient_details = None
 
-    db.session.commit()
-    return jsonify({"message": "Appointment updated!"})
+    # Verify if the doctor exists by calling the User Service API
+    doctor_id = data.get("doctor_id", appointment.doctor_id)
+    user_service_url = f"{USER_SERVICE_URL}/{doctor_id}/exists"
+    try:
+        response = requests.get(user_service_url)
+        if response.status_code != 200:
+            return jsonify({"message": "Error checking doctor existence", "error": response.json()}), response.status_code
+        doctor_exists = response.json()
+        if not doctor_exists:
+            return jsonify({"message": "Doctor not found"}), 404
+    except requests.RequestException as e:
+        return jsonify({"message": f"Error communicating with User Service: {str(e)}"}), 500
+
+    # Update patient information if provided
+    patient_id = appointment.patient_id
+    if "name" in data:  # Check if patient data is being updated
+        # Create a gRPC patient update request
+        patient_data = patient_pb2.Patient(
+            name=data.get("name", appointment.patient.name),
+            address=data.get("address", appointment.patient.address),
+            email=data.get("email", appointment.patient.email),
+            phoneNumber=data.get("phoneNumber", appointment.patient.phoneNumber),
+            gender=data.get("gender", appointment.patient.gender),
+        )
+
+        grpc_response, grpc_error = update_patient(patient_data)
+        if grpc_error:
+            return jsonify({"error": grpc_error, "message": "gRPC call failed"}), 500
+
+        # Update the local patient details
+        patient_details = get_patient_details(patient_id)
+        if patient_details:
+            patient_details.patient.name = grpc_response.name
+            patient_details.patient.address = grpc_response.address
+            patient_details.patient.email = grpc_response.email
+            patient_details.patient.phoneNumber = grpc_response.phoneNumber
+            db.session.commit()
+    else:
+        # Use existing patient details if no update is performed
+        patient_details = get_patient_details(patient_id)
+
+    # Update the appointment details
+    appointment.appointment_date = data.get("appointment_date", appointment.appointment_date)
+    appointment.notes = data.get("notes", appointment.notes)
+    appointment.is_cancelled = data.get("is_cancelled", appointment.is_cancelled)
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        return jsonify({"message": f"Database error: {str(e)}"}), 500
+
+    # Return the response with updated details
+    return jsonify({
+        "message": "Appointment updated successfully!",
+        "appointment": {
+            "id": appointment.id,
+            "patient_id": patient_details.patient.id,
+            "doctor_id": appointment.doctor_id,
+            "appointment_date": appointment.appointment_date.strftime("%Y-%m-%d"),
+            "notes": appointment.notes,
+            "is_cancelled": appointment.is_cancelled,
+        },
+        "patient": {
+            "id": patient_details.patient.id,
+            "name": data.get("patient_name", patient_details.patient.name),
+            "address": data.get("address", patient_details.patient.address),
+            "email": data.get("email", patient_details.patient.email),
+            "phone_number": data.get("phone_number", patient_details.patient.phoneNumber),
+            "gender": data.get("gender", patient_details.patient.gender),
+        }
+    }), 200
+
 
 # Supprimer un rendez-vous
 @routes.route("/appointments/<int:id>", methods=["DELETE"])
