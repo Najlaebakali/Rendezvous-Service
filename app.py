@@ -14,8 +14,10 @@ import config
 import routes
 from flask_cors import CORS
 from eureka_config import configure_eureka
+from flasgger import Swagger, swag_from
 
 app = Flask(__name__)
+Swagger(app)
 CORS(app)  # This enables CORS for all routes
 
 # Configuration de la base de données
