@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import patient_pb2 as patient__pb2
+from client_grpc.Protos import patient_pb2 as patient__pb2
 
 GRPC_GENERATED_VERSION = '1.68.1'
 GRPC_VERSION = grpc.__version__
@@ -64,6 +64,16 @@ class PatientProtoStub(object):
                 request_serializer=patient__pb2.GetPatientRendezVousRequest.SerializeToString,
                 response_deserializer=patient__pb2.GetPatientRendezVousResponse.FromString,
                 _registered_method=True)
+        self.GetPatientByEmail = channel.unary_unary(
+                '/patient.PatientProto/GetPatientByEmail',
+                request_serializer=patient__pb2.GetPatientByEmailRequest.SerializeToString,
+                response_deserializer=patient__pb2.GetPatientByEmailResponse.FromString,
+                _registered_method=True)
+        self.CheckPatientExists = channel.unary_unary(
+                '/patient.PatientProto/CheckPatientExists',
+                request_serializer=patient__pb2.PatientEmail.SerializeToString,
+                response_deserializer=patient__pb2.PatientExistsResponse.FromString,
+                _registered_method=True)
 
 
 class PatientProtoServicer(object):
@@ -105,6 +115,18 @@ class PatientProtoServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetPatientByEmail(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CheckPatientExists(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_PatientProtoServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -137,6 +159,16 @@ def add_PatientProtoServicer_to_server(servicer, server):
                     servicer.GetPatientRendezVous,
                     request_deserializer=patient__pb2.GetPatientRendezVousRequest.FromString,
                     response_serializer=patient__pb2.GetPatientRendezVousResponse.SerializeToString,
+            ),
+            'GetPatientByEmail': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetPatientByEmail,
+                    request_deserializer=patient__pb2.GetPatientByEmailRequest.FromString,
+                    response_serializer=patient__pb2.GetPatientByEmailResponse.SerializeToString,
+            ),
+            'CheckPatientExists': grpc.unary_unary_rpc_method_handler(
+                    servicer.CheckPatientExists,
+                    request_deserializer=patient__pb2.PatientEmail.FromString,
+                    response_serializer=patient__pb2.PatientExistsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -301,6 +333,60 @@ class PatientProto(object):
             '/patient.PatientProto/GetPatientRendezVous',
             patient__pb2.GetPatientRendezVousRequest.SerializeToString,
             patient__pb2.GetPatientRendezVousResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetPatientByEmail(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/patient.PatientProto/GetPatientByEmail',
+            patient__pb2.GetPatientByEmailRequest.SerializeToString,
+            patient__pb2.GetPatientByEmailResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CheckPatientExists(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/patient.PatientProto/CheckPatientExists',
+            patient__pb2.PatientEmail.SerializeToString,
+            patient__pb2.PatientExistsResponse.FromString,
             options,
             channel_credentials,
             insecure,

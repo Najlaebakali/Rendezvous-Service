@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rpatient.proto\x12\x07patient\x1a\x1fgoogle/protobuf/timestamp.proto\"#\n\x15GetPatientByIdRequest\x12\n\n\x02id\x18\x01 \x01(\x05\";\n\x16GetPatientByIdResponse\x12!\n\x07patient\x18\x01 \x01(\x0b\x32\x10.patient.Patient\"6\n\x11\x41\x64\x64PatientRequest\x12!\n\x07patient\x18\x01 \x01(\x0b\x32\x10.patient.Patient\"9\n\x14UpdatePatientRequest\x12!\n\x07patient\x18\x01 \x01(\x0b\x32\x10.patient.Patient\"\"\n\x14\x44\x65letePatientRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"8\n\x12\x41\x64\x64PatientResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x11\n\tpatientId\x18\x02 \x01(\x03\"(\n\x15UpdatePatientResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"(\n\x15\x44\x65letePatientResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"h\n\x07Patient\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x03 \x01(\t\x12\r\n\x05\x65mail\x18\x04 \x01(\t\x12\x13\n\x0bphoneNumber\x18\x05 \x01(\t\x12\x0e\n\x06gender\x18\x06 \x01(\t\"\x07\n\x05\x45mpty\"<\n\x16GetAllPatientsResponse\x12\"\n\x08patients\x18\x01 \x03(\x0b\x32\x10.patient.Patient\"Y\n\rRendezVousDto\x12\n\n\x02id\x18\x01 \x01(\x05\x12(\n\x04\x64\x61te\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\ndoctorName\x18\x03 \x01(\t\"0\n\x1bGetPatientRendezVousRequest\x12\x11\n\tpatientId\x18\x01 \x01(\x05\"J\n\x1cGetPatientRendezVousResponse\x12*\n\nrendezVous\x18\x01 \x03(\x0b\x32\x16.patient.RendezVousDto2\xf0\x03\n\x0cPatientProto\x12Q\n\x0eGetPatientById\x12\x1e.patient.GetPatientByIdRequest\x1a\x1f.patient.GetPatientByIdResponse\x12\x41\n\x0eGetAllPatients\x12\x0e.patient.Empty\x1a\x1f.patient.GetAllPatientsResponse\x12\x45\n\nAddPatient\x12\x1a.patient.AddPatientRequest\x1a\x1b.patient.AddPatientResponse\x12N\n\rUpdatePatient\x12\x1d.patient.UpdatePatientRequest\x1a\x1e.patient.UpdatePatientResponse\x12N\n\rDeletePatient\x12\x1d.patient.DeletePatientRequest\x1a\x1e.patient.DeletePatientResponse\x12\x63\n\x14GetPatientRendezVous\x12$.patient.GetPatientRendezVousRequest\x1a%.patient.GetPatientRendezVousResponseB \xaa\x02\x1dPatientGmt.PatientGrpcServiceb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rpatient.proto\x12\x07patient\x1a\x1fgoogle/protobuf/timestamp.proto\"\x1d\n\x0cPatientEmail\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"\'\n\x15PatientExistsResponse\x12\x0e\n\x06\x65xists\x18\x01 \x01(\x08\")\n\x18GetPatientByEmailRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\">\n\x19GetPatientByEmailResponse\x12!\n\x07patient\x18\x01 \x01(\x0b\x32\x10.patient.Patient\"#\n\x15GetPatientByIdRequest\x12\n\n\x02id\x18\x01 \x01(\x05\";\n\x16GetPatientByIdResponse\x12!\n\x07patient\x18\x01 \x01(\x0b\x32\x10.patient.Patient\"6\n\x11\x41\x64\x64PatientRequest\x12!\n\x07patient\x18\x01 \x01(\x0b\x32\x10.patient.Patient\"9\n\x14UpdatePatientRequest\x12!\n\x07patient\x18\x01 \x01(\x0b\x32\x10.patient.Patient\"\"\n\x14\x44\x65letePatientRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"8\n\x12\x41\x64\x64PatientResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x11\n\tpatientId\x18\x02 \x01(\x03\"(\n\x15UpdatePatientResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"(\n\x15\x44\x65letePatientResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"h\n\x07Patient\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x03 \x01(\t\x12\r\n\x05\x65mail\x18\x04 \x01(\t\x12\x13\n\x0bphoneNumber\x18\x05 \x01(\t\x12\x0e\n\x06gender\x18\x06 \x01(\t\"\x07\n\x05\x45mpty\"<\n\x16GetAllPatientsResponse\x12\"\n\x08patients\x18\x01 \x03(\x0b\x32\x10.patient.Patient\"\xbe\x01\n\rRendezVousDto\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x11\n\tpatientId\x18\x02 \x01(\x05\x12\x11\n\tdoctor_id\x18\x03 \x01(\x05\x12.\n\nstart_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05notes\x18\x06 \x01(\t\x12\x0e\n\x06status\x18\x07 \x01(\t\"0\n\x1bGetPatientRendezVousRequest\x12\x11\n\tpatientId\x18\x01 \x01(\x05\"J\n\x1cGetPatientRendezVousResponse\x12*\n\nrendezVous\x18\x01 \x03(\x0b\x32\x16.patient.RendezVousDto2\x99\x05\n\x0cPatientProto\x12Q\n\x0eGetPatientById\x12\x1e.patient.GetPatientByIdRequest\x1a\x1f.patient.GetPatientByIdResponse\x12\x41\n\x0eGetAllPatients\x12\x0e.patient.Empty\x1a\x1f.patient.GetAllPatientsResponse\x12\x45\n\nAddPatient\x12\x1a.patient.AddPatientRequest\x1a\x1b.patient.AddPatientResponse\x12N\n\rUpdatePatient\x12\x1d.patient.UpdatePatientRequest\x1a\x1e.patient.UpdatePatientResponse\x12N\n\rDeletePatient\x12\x1d.patient.DeletePatientRequest\x1a\x1e.patient.DeletePatientResponse\x12\x63\n\x14GetPatientRendezVous\x12$.patient.GetPatientRendezVousRequest\x1a%.patient.GetPatientRendezVousResponse\x12Z\n\x11GetPatientByEmail\x12!.patient.GetPatientByEmailRequest\x1a\".patient.GetPatientByEmailResponse\x12K\n\x12\x43heckPatientExists\x12\x15.patient.PatientEmail\x1a\x1e.patient.PatientExistsResponseB \xaa\x02\x1dPatientGmt.PatientGrpcServiceb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,34 +33,42 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'patient_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'\252\002\035PatientGmt.PatientGrpcService'
-  _globals['_GETPATIENTBYIDREQUEST']._serialized_start=59
-  _globals['_GETPATIENTBYIDREQUEST']._serialized_end=94
-  _globals['_GETPATIENTBYIDRESPONSE']._serialized_start=96
-  _globals['_GETPATIENTBYIDRESPONSE']._serialized_end=155
-  _globals['_ADDPATIENTREQUEST']._serialized_start=157
-  _globals['_ADDPATIENTREQUEST']._serialized_end=211
-  _globals['_UPDATEPATIENTREQUEST']._serialized_start=213
-  _globals['_UPDATEPATIENTREQUEST']._serialized_end=270
-  _globals['_DELETEPATIENTREQUEST']._serialized_start=272
-  _globals['_DELETEPATIENTREQUEST']._serialized_end=306
-  _globals['_ADDPATIENTRESPONSE']._serialized_start=308
-  _globals['_ADDPATIENTRESPONSE']._serialized_end=364
-  _globals['_UPDATEPATIENTRESPONSE']._serialized_start=366
-  _globals['_UPDATEPATIENTRESPONSE']._serialized_end=406
-  _globals['_DELETEPATIENTRESPONSE']._serialized_start=408
-  _globals['_DELETEPATIENTRESPONSE']._serialized_end=448
-  _globals['_PATIENT']._serialized_start=450
-  _globals['_PATIENT']._serialized_end=554
-  _globals['_EMPTY']._serialized_start=556
-  _globals['_EMPTY']._serialized_end=563
-  _globals['_GETALLPATIENTSRESPONSE']._serialized_start=565
-  _globals['_GETALLPATIENTSRESPONSE']._serialized_end=625
-  _globals['_RENDEZVOUSDTO']._serialized_start=627
-  _globals['_RENDEZVOUSDTO']._serialized_end=716
-  _globals['_GETPATIENTRENDEZVOUSREQUEST']._serialized_start=718
-  _globals['_GETPATIENTRENDEZVOUSREQUEST']._serialized_end=766
-  _globals['_GETPATIENTRENDEZVOUSRESPONSE']._serialized_start=768
-  _globals['_GETPATIENTRENDEZVOUSRESPONSE']._serialized_end=842
-  _globals['_PATIENTPROTO']._serialized_start=845
-  _globals['_PATIENTPROTO']._serialized_end=1341
+  _globals['_PATIENTEMAIL']._serialized_start=59
+  _globals['_PATIENTEMAIL']._serialized_end=88
+  _globals['_PATIENTEXISTSRESPONSE']._serialized_start=90
+  _globals['_PATIENTEXISTSRESPONSE']._serialized_end=129
+  _globals['_GETPATIENTBYEMAILREQUEST']._serialized_start=131
+  _globals['_GETPATIENTBYEMAILREQUEST']._serialized_end=172
+  _globals['_GETPATIENTBYEMAILRESPONSE']._serialized_start=174
+  _globals['_GETPATIENTBYEMAILRESPONSE']._serialized_end=236
+  _globals['_GETPATIENTBYIDREQUEST']._serialized_start=238
+  _globals['_GETPATIENTBYIDREQUEST']._serialized_end=273
+  _globals['_GETPATIENTBYIDRESPONSE']._serialized_start=275
+  _globals['_GETPATIENTBYIDRESPONSE']._serialized_end=334
+  _globals['_ADDPATIENTREQUEST']._serialized_start=336
+  _globals['_ADDPATIENTREQUEST']._serialized_end=390
+  _globals['_UPDATEPATIENTREQUEST']._serialized_start=392
+  _globals['_UPDATEPATIENTREQUEST']._serialized_end=449
+  _globals['_DELETEPATIENTREQUEST']._serialized_start=451
+  _globals['_DELETEPATIENTREQUEST']._serialized_end=485
+  _globals['_ADDPATIENTRESPONSE']._serialized_start=487
+  _globals['_ADDPATIENTRESPONSE']._serialized_end=543
+  _globals['_UPDATEPATIENTRESPONSE']._serialized_start=545
+  _globals['_UPDATEPATIENTRESPONSE']._serialized_end=585
+  _globals['_DELETEPATIENTRESPONSE']._serialized_start=587
+  _globals['_DELETEPATIENTRESPONSE']._serialized_end=627
+  _globals['_PATIENT']._serialized_start=629
+  _globals['_PATIENT']._serialized_end=733
+  _globals['_EMPTY']._serialized_start=735
+  _globals['_EMPTY']._serialized_end=742
+  _globals['_GETALLPATIENTSRESPONSE']._serialized_start=744
+  _globals['_GETALLPATIENTSRESPONSE']._serialized_end=804
+  _globals['_RENDEZVOUSDTO']._serialized_start=807
+  _globals['_RENDEZVOUSDTO']._serialized_end=997
+  _globals['_GETPATIENTRENDEZVOUSREQUEST']._serialized_start=999
+  _globals['_GETPATIENTRENDEZVOUSREQUEST']._serialized_end=1047
+  _globals['_GETPATIENTRENDEZVOUSRESPONSE']._serialized_start=1049
+  _globals['_GETPATIENTRENDEZVOUSRESPONSE']._serialized_end=1123
+  _globals['_PATIENTPROTO']._serialized_start=1126
+  _globals['_PATIENTPROTO']._serialized_end=1791
 # @@protoc_insertion_point(module_scope)

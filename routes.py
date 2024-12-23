@@ -10,7 +10,8 @@ from Client_Medecin.client_appel import check_doctor_availability
 from sqlalchemy import cast, Date
 import grpc
 from flasgger import Swagger, swag_from
-
+from client_grpc.Patient_Service import check_patient_exists
+from client_grpc.Patient_Service import get_patient_by_email
 
 routes = Blueprint("routes", __name__)
 
@@ -155,17 +156,41 @@ def create_appointment():
     except requests.RequestException as e:
         return jsonify({"message": f"Error communicating with User Service: {str(e)}"}), 500
 
-    # Vérifier la disponibilité du médecin
+    # Vérifier la disponibilité du médecin via le microservice Médecin
     start_date = data.get("start_date")
     end_date = data.get("end_date")
     if not check_doctor_availability(doctor_id, start_date, end_date):
         return jsonify({"message": "Le médecin n'est pas disponible pour cette plage horaire."}), 400
 
-    # Préparer les données du patient pour gRPC
+    # Vérifier si un rendez-vous existe déjà dans la base de données
+    try:
+        overlapping_appointments = Appointment.query.filter(
+            Appointment.doctor_id == doctor_id,
+            Appointment.start_time < datetime.fromisoformat(end_date),
+            Appointment.end_time > datetime.fromisoformat(start_date),
+            Appointment.status != "Cancelled"
+        ).all()
+
+        if overlapping_appointments:
+            return jsonify({"message": "Il y a déjà un rendez-vous pour le médecin à cette plage horaire."}), 400
+    except Exception as e:
+        return jsonify({"message": f"Database error: {str(e)}"}), 500
+
+    # Vérifier si le patient existe déjà via gRPC
+    email = data.get("email")
+    patient_exists = check_patient_exists(email)
+    
+    if patient_exists:
+        # Si le patient existe déjà, on peut récupérer ses détails (par exemple son ID) via gRPC
+        patient_data = get_patient_by_email(email)  # Utilisez une méthode pour obtenir les détails du patient
+        patient_id = patient_data.id
+        return create_appointment_without_creating_patient(data, patient_id, doctor_id, start_date, end_date)
+    
+    # Si le patient n'existe pas, on crée un nouveau patient
     patient_data = patient_pb2.Patient(
         name=data.get("patient_name", ""),
         address=data.get("address", ""),
-        email=data.get("email", ""),
+        email=email,
         phoneNumber=data.get("phone_number", ""),
         gender=data.get("gender", "")
     )
@@ -176,20 +201,13 @@ def create_appointment():
     # Récupérer le patient_id depuis gRPC
     patient_id = grpc_response.patientId
 
-    # Convertir les dates
-    try:
-        start_time = datetime.fromisoformat(start_date)
-        end_time = datetime.fromisoformat(end_date)
-    except ValueError:
-        return jsonify({"message": "Invalid date format. Expected ISO 8601 format"}), 400
-
     # Créer le rendez-vous dans la base de données
     try:
         new_appointment = Appointment(
             patient_id=patient_id,
             doctor_id=doctor_id,
-            start_time=start_time,
-            end_time=end_time,
+            start_time=datetime.fromisoformat(start_date),
+            end_time=datetime.fromisoformat(end_date),
             notes=data.get("notes", ""),
             status=data.get("status", "Scheduled")
         )
@@ -219,6 +237,44 @@ def create_appointment():
             "gender": data.get("gender", "")
         }
     }), 201
+
+def create_appointment_without_creating_patient(data, patient_id, doctor_id, start_date, end_date):
+    # Convertir les dates
+    try:
+        start_time = datetime.fromisoformat(start_date)
+        end_time = datetime.fromisoformat(end_date)
+    except ValueError:
+        return jsonify({"message": "Invalid date format. Expected ISO 8601 format"}), 400
+
+    # Créer le rendez-vous dans la base de données
+    try:
+        new_appointment = Appointment(
+            patient_id=patient_id,
+            doctor_id=doctor_id,
+            start_time=start_time,
+            end_time=end_time,
+            notes=data.get("notes", ""),
+            status=data.get("status", "Scheduled")
+        )
+        db.session.add(new_appointment)
+        db.session.commit()
+    except Exception as e:
+        return jsonify({"message": f"Database error: {str(e)}"}), 500
+
+    # Réponse finale
+    return jsonify({
+        "message": "Appointment created successfully!",
+        "appointment": {
+            "id": new_appointment.id,
+            "patient_id": new_appointment.patient_id,
+            "doctor_id": new_appointment.doctor_id,
+            "start_time": new_appointment.start_time.isoformat(),
+            "end_time": new_appointment.end_time.isoformat(),
+            "notes": new_appointment.notes,
+            "status": new_appointment.status,
+        }
+    }), 201
+
 #CODE DOUAE
 
 

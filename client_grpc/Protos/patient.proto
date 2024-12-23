@@ -11,6 +11,26 @@ service PatientProto{
   rpc UpdatePatient (UpdatePatientRequest) returns (UpdatePatientResponse);
   rpc DeletePatient (DeletePatientRequest) returns (DeletePatientResponse);
   rpc GetPatientRendezVous (GetPatientRendezVousRequest) returns (GetPatientRendezVousResponse);
+  rpc GetPatientByEmail (GetPatientByEmailRequest) returns (GetPatientByEmailResponse);
+  rpc CheckPatientExists (PatientEmail) returns (PatientExistsResponse);
+}
+
+message PatientEmail {
+    string email = 1;
+}
+
+message PatientExistsResponse {
+    bool exists = 1;
+}
+
+
+message GetPatientByEmailRequest {
+  string email = 1;
+}
+
+
+message GetPatientByEmailResponse {
+  Patient patient = 1;
 }
 
 message GetPatientByIdRequest {
@@ -65,8 +85,12 @@ message GetAllPatientsResponse {
 // Message for the response containing rendezvous details
 message RendezVousDto {
   int32 id = 1;
-  google.protobuf.Timestamp date = 2;
-  string doctorName = 3;
+  int32 patientId = 2;
+  int32 doctor_id  = 3;
+  google.protobuf.Timestamp start_time = 4;
+  google.protobuf.Timestamp end_time = 5;
+  string notes = 6;
+  string status = 7;
 }
 
 // Request message to get rendezvous by patientId
