@@ -655,6 +655,52 @@ def get_appointments_by_doctor(doctor_id):
 # Récupérer tous les rendez-vous d'un patient spécifique par son ID
 
 @routes.route("/appointments/patient/<int:patient_id>", methods=["GET"])
+@swag_from({
+    'responses': {
+        200: {
+            'description': 'List of appointments for a specific patient',
+            'examples': {
+                'application/json': [
+                    {
+                        "id": 1,
+                        "doctor_id": 1,
+                        "start_time": "2023-01-01 09:00:00",
+                        "end_time": "2023-01-01 09:30:00",
+                        "notes": "Follow-up appointment",
+                        "status": "Scheduled",
+                        "patient_id": 1
+                    }
+                ]
+            }
+        },
+        404: {
+            'description': 'No appointments found for this patient',
+            'examples': {
+                'application/json': {
+                    "message": "No appointments found for this patient"
+                }
+            }
+        },
+        500: {
+            'description': 'Error communicating with User Service',
+            'examples': {
+                'application/json': {
+                    "message": "Error communicating with User Service",
+                    "error": "Some error details"
+                }
+            }
+        }
+    },
+    'parameters': [
+        {
+            'name': 'patient_id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the patient'
+        }
+    ]
+})
 def get_appointments_by_patient(patient_id):
     appointments = Appointment.query.filter_by(patient_id=patient_id).all()
     if not appointments:
@@ -762,6 +808,41 @@ def delete_appointment_by_date():
     return jsonify({"message": f"{len(appointments_to_delete)} appointments deleted successfully."}), 200
 
 @routes.route("/appointments/cancelled", methods=["GET"])
+@swag_from({
+    'responses': {
+        200: {
+            'description': 'List of cancelled appointments',
+            'examples': {
+                'application/json': [
+                    {
+                        "id": 1,
+                        "patient": {
+                            "id": 1,
+                            "name": "John Doe",
+                            "address": "123 Street",
+                            "email": "john.doe@example.com",
+                            "phone_number": "1234567890",
+                            "gender": "male"
+                        },
+                        "doctor_id": 1,
+                        "start_time": "2023-01-01 09:00:00",
+                        "end_time": "2023-01-01 09:30:00",
+                        "notes": "Follow-up appointment",
+                        "status": "cancelled"
+                    }
+                ]
+            }
+        },
+        404: {
+            'description': 'No cancelled appointments found',
+            'examples': {
+                'application/json': {
+                    "message": "No cancelled appointments found"
+                }
+            }
+        }
+    }
+})
 def get_cancelled_appointments():
     # Récupérer tous les rendez-vous ayant le statut 'cancelled'
     appointments = Appointment.query.filter(Appointment.status == 'cancelled').all()
@@ -800,6 +881,41 @@ def get_cancelled_appointments():
     return jsonify(appointments_list)
 
 @routes.route("/appointments/scheduled", methods=["GET"])
+@swag_from({
+    'responses': {
+        200: {
+            'description': 'List of scheduled appointments',
+            'examples': {
+                'application/json': [
+                    {
+                        "id": 1,
+                        "patient": {
+                            "id": 1,
+                            "name": "John Doe",
+                            "address": "123 Street",
+                            "email": "john.doe@example.com",
+                            "phone_number": "1234567890",
+                            "gender": "male"
+                        },
+                        "doctor_id": 1,
+                        "start_time": "2023-01-01 09:00:00",
+                        "end_time": "2023-01-01 09:30:00",
+                        "notes": "Follow-up appointment",
+                        "status": "scheduled"
+                    }
+                ]
+            }
+        },
+        404: {
+            'description': 'No scheduled appointments found',
+            'examples': {
+                'application/json': {
+                    "message": "No scheduled appointments found"
+                }
+            }
+        }
+    }
+})
 def get_scheduled_appointments():
     # Récupérer tous les rendez-vous ayant le statut 'scheduled'
     appointments = Appointment.query.filter(Appointment.status == 'scheduled').all()
