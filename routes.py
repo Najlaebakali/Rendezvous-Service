@@ -7,6 +7,7 @@ from client_grpc.Patient_Service import get_patient_details
 from client_grpc.Patient_Service import update_patient
 from client_grpc.Protos import patient_pb2, patient_pb2_grpc
 import grpc
+from flasgger import Swagger, swag_from
 
 
 routes = Blueprint("routes", __name__)
@@ -16,11 +17,46 @@ USER_SERVICE_URL = "http://localhost:8081/api/medecins"
 
 # Route de la page d'accueil
 @routes.route('/')
+@swag_from({
+    'tags': ['Accueil'],
+    'responses': {
+        200: {
+            'description': "Bienvenue sur la page d'accueil"
+        }
+    }
+})
 def home():
     return 'Bienvenue sur la page d\'accueil !'
 
 # Récupérer tous les rendez-vous
 @routes.route("/appointments", methods=["GET"])
+@swag_from({
+    'tags': ['Appointments'],
+    'summary': 'Récupérer tous les rendez-vous',
+    'responses': {
+        200: {
+            'description': "Liste de tous les rendez-vous",
+            'examples': {
+                'application/json': [
+                    {
+                        "id": 1,
+                        "patient": {
+                            "id": 123,
+                            "name": "John Doe",
+                            "address": "123 Main St",
+                            "email": "john.doe@example.com",
+                            "phone_number": "123-456-7890",
+                            "gender": "M"
+                        },
+                        "doctor_id": 10,
+                        "appointment_date": "2024-01-01 10:00:00",
+                        "notes": "Follow-up visit"
+                    }
+                ]
+            }
+        }
+    }
+})
 def get_appointments():
     # Récupérer tous les rendez-vous depuis la base de données
     appointments = Appointment.query.all()
@@ -70,6 +106,38 @@ def get_patient_service_stub():
     return patient_pb2_grpc.PatientProtoStub(channel)
 
 @routes.route('/appointments', methods=['POST'])
+@swag_from({
+    'tags': ['Appointments'],
+    'summary': 'Créer un rendez-vous',
+    'parameters': [
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'patient_name': {'type': 'string'},
+                    'address': {'type': 'string'},
+                    'email': {'type': 'string'},
+                    'phone_number': {'type': 'string'},
+                    'gender': {'type': 'string'},
+                    'doctor_id': {'type': 'integer'},
+                    'appointment_date': {'type': 'string', 'format': 'date'},
+                    'notes': {'type': 'string'}
+                }
+            }
+        }
+    ],
+    'responses': {
+        201: {
+            'description': "Rendez-vous créé avec succès",
+        },
+        400: {
+            'description': "Erreur dans les données fournies"
+        }
+    }
+})
 def create_appointment():
     data = request.json
 
@@ -150,6 +218,47 @@ def create_appointment():
 
 # Récupérer un rendez-vous spécifique par ID
 @routes.route("/appointments/<int:id>", methods=["GET"])
+@swag_from({
+    'responses': {
+        200: {
+            'description': 'Details of the appointment',
+            'examples': {
+                'application/json': {
+                    "id": 1,
+                    "patient": {
+                        "id": 1,
+                        "name": "John Doe",
+                        "address": "123 Street",
+                        "email": "john.doe@example.com",
+                        "phone_number": "1234567890",
+                        "gender": "male"
+                    },
+                    "doctor_id": 1,
+                    "appointment_date": "2023-01-01 09:00:00",
+                    "notes": "Follow-up appointment"
+                }
+            }
+        },
+        404: {
+            'description': 'Appointment not found',
+            'examples': {
+                'application/json': {
+                    "message": "Appointment not found"
+                }
+            }
+        }
+    },
+    'parameters': [
+        {
+            'name': 'id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the appointment to retrieve'
+        }
+    ]
+})
+
 def get_appointment(id):
     # Récupérer le rendez-vous depuis la base de données
     appointment = Appointment.query.get(id)
@@ -188,6 +297,91 @@ def get_appointment(id):
     })
 
 @routes.route('/appointments/<int:appointment_id>', methods=['PUT'])
+@swag_from({
+    'responses': {
+        200: {
+            'description': 'Appointment updated successfully!',
+            'examples': {
+                'application/json': {
+                    "message": "Appointment updated successfully!",
+                    "appointment": {
+                        "id": 1,
+                        "patient_id": 1,
+                        "doctor_id": 1,
+                        "appointment_date": "2023-01-01",
+                        "notes": "Updated notes",
+                        "is_cancelled": False,
+                    },
+                    "patient": {
+                        "id": 1,
+                        "name": "John Doe",
+                        "address": "123 Street",
+                        "email": "john.doe@example.com",
+                        "phone_number": "1234567890",
+                        "gender": "male",
+                    }
+                }
+            }
+        },
+        404: {
+            'description': 'Appointment not found',
+            'examples': {
+                'application/json': {
+                    "message": "Appointment not found"
+                }
+            }
+        },
+        500: {
+            'description': 'Database error or gRPC call failed',
+            'examples': {
+                'application/json': {
+                    "message": "Database error: <error details>",
+                    "error": "gRPC call failed"
+                }
+            }
+        }
+    },
+    'parameters': [
+        {
+            'name': 'appointment_id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the appointment to update'
+        },
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'doctor_id': {'type': 'integer'},
+                    'patient_name': {'type': 'string'},
+                    'address': {'type': 'string'},
+                    'email': {'type': 'string'},
+                    'phone_number': {'type': 'string'},
+                    'gender': {'type': 'string'},
+                    'appointment_date': {'type': 'string'},
+                    'notes': {'type': 'string'},
+                    'is_cancelled': {'type': 'boolean'}
+                },
+                'example': {
+                    'doctor_id': 1,
+                    'patient_name': 'John Doe',
+                    'address': '123 Street',
+                    'email': 'john.doe@example.com',
+                    'phone_number': '1234567890',
+                    'gender': 'male',
+                    'appointment_date': '2023-01-01',
+                    'notes': 'Follow-up appointment',
+                    'is_cancelled': False
+                }
+            }
+        }
+    ]
+})
+
 def update_appointment(appointment_id):
     data = request.json
 
@@ -274,6 +468,35 @@ def update_appointment(appointment_id):
 
 # Supprimer un rendez-vous
 @routes.route("/appointments/<int:id>", methods=["DELETE"])
+@swag_from({
+    'responses': {
+        200: {
+            'description': 'Appointment deleted',
+            'examples': {
+                'application/json': {
+                    "message": "Appointment deleted!"
+                }
+            }
+        },
+        404: {
+            'description': 'Appointment not found',
+            'examples': {
+                'application/json': {
+                    "message": "Appointment not found"
+                }
+            }
+        }
+    },
+    'parameters': [
+        {
+            'name': 'id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the appointment to delete'
+        }
+    ]
+})
 def delete_appointment(id):
     appointment = Appointment.query.get(id)
     if appointment is None:
@@ -287,6 +510,48 @@ def delete_appointment(id):
 
 # Récupérer tous les rendez-vous d'un médecin spécifique par son ID
 @routes.route("/appointments/medecin/<int:doctor_id>", methods=["GET"])
+@swag_from({
+    'responses': {
+        200: {
+            'description': 'List of appointments for a specific doctor',
+            'examples': {
+                'application/json': [
+                    {
+                        "id": 1,
+                        "patient": {
+                            "id": 1,
+                            "name": "John Doe",
+                            "address": "123 Street",
+                            "email": "john.doe@example.com",
+                            "phone_number": "1234567890",
+                            "gender": "male"
+                        },
+                        "doctor_id": 1,
+                        "appointment_date": "2023-01-01",
+                        "notes": "Follow-up appointment"
+                    }
+                ]
+            }
+        },
+        404: {
+            'description': 'No appointments found for this doctor',
+            'examples': {
+                'application/json': {
+                    "message": "No appointments found for this doctor"
+                }
+            }
+        }
+    },
+    'parameters': [
+        {
+            'name': 'doctor_id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the doctor'
+        }
+    ]
+})
 def get_appointments_by_doctor(doctor_id):
     appointments = Appointment.query.filter_by(doctor_id=doctor_id).all()
     if not appointments:
@@ -317,6 +582,43 @@ def get_appointments_by_doctor(doctor_id):
 
 # Supprimer un rendez-vous selon la date
 @routes.route("/appointments/delete_by_date", methods=["DELETE"])
+@swag_from({
+    'responses': {
+        200: {
+            'description': 'Appointments deleted',
+            'examples': {
+                'application/json': {
+                    "message": "N appointments deleted successfully."
+                }
+            }
+        },
+        400: {
+            'description': 'Invalid date format or date not provided',
+            'examples': {
+                'application/json': {
+                    "message": "Invalid date format. Please use 'YYYY-MM-DD'."
+                }
+            }
+        },
+        404: {
+            'description': 'No appointments found for the specified date',
+            'examples': {
+                'application/json': {
+                    "message": "No appointments found for the specified date."
+                }
+            }
+        }
+    },
+    'parameters': [
+        {
+            'name': 'date',
+            'in': 'query',
+            'type': 'string',
+            'required': True,
+            'description': 'Date of the appointments to delete (format: YYYY-MM-DD)'
+        }
+    ]
+})
 def delete_appointment_by_date():
     # Récupérer la date du rendez-vous à supprimer depuis les paramètres de la requête
     appointment_date_str = request.args.get('date')  # La date doit être passée en tant que paramètre de requête (format : "YYYY-MM-DD")
@@ -343,3 +645,81 @@ def delete_appointment_by_date():
     db.session.commit()  # Confirmer les suppressions
 
     return jsonify({"message": f"{len(appointments_to_delete)} appointments deleted successfully."}), 200
+
+
+"""
+Cette méthode permet de récupérer tous les rendez-vous associés à un patient spécifique, identifié par son ID. 
+"""
+@routes.route("/appointments/patient/<int:patient_id>", methods=["GET"])
+@swag_from({
+    'responses': {
+        200: {
+            'description': 'List of appointments for a specific patient',
+            'examples': {
+                'application/json': [
+                    {
+                        "id": 1,
+                        "doctor_id": 1,
+                        "start_time": "2023-01-01 09:00:00",
+                        "end_time": "2023-01-01 10:00:00",
+                        "notes": "Annual checkup",
+                        "status": "scheduled",
+                        "patient_id": 1
+                    }
+                ]
+            }
+        },
+        404: {
+            'description': 'No appointments found for this patient',
+            'examples': {
+                'application/json': {
+                    "message": "No appointments found for this patient"
+                }
+            }
+        }
+    },
+    'parameters': [
+        {
+            'name': 'patient_id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the patient'
+        }
+    ]
+})
+def get_appointments_by_patient(patient_id):
+    appointments = Appointment.query.filter_by(patient_id=patient_id).all()
+    if not appointments:
+        return jsonify({"message": "No appointments found for this patient"}), 404
+
+    appointments_list = []
+    for a in appointments:
+        # Vérifier si le médecin existe en appelant l'API du service utilisateur
+        doctor_id = a.doctor_id
+        user_service_url = f"{USER_SERVICE_URL}/{doctor_id}/exists"
+        try:
+            response = requests.get(user_service_url)
+            if response.status_code != 200:
+                return jsonify({"message": "Error checking doctor existence", "error": response.json()}), response.status_code
+            doctor_exists = response.json()
+            if not doctor_exists:
+                continue  # Si le médecin n'existe pas, on passe à l'élément suivant
+        except requests.RequestException as e:
+            return jsonify({"message": f"Error communicating with User Service: {str(e)}"}), 500
+        
+        # Formater la date de début et de fin du rendez-vous pour un format lisible
+        start_time = a.start_time.strftime("%Y-%m-%d %H:%M:%S")
+        end_time = a.end_time.strftime("%Y-%m-%d %H:%M:%S")
+
+        appointments_list.append({
+            "id": a.id,
+            "doctor_id": doctor_id,
+            "start_time": start_time,
+            "end_time": end_time,
+            "notes": a.notes,
+            "status": a.status,  # Inclure le statut du rendez-vous
+            "patient_id": a.patient_id
+        })
+    
+    return jsonify(appointments_list)
