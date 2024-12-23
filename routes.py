@@ -331,6 +331,44 @@ def get_appointments_by_doctor(doctor_id):
         })
     
     return jsonify(appointments_list)
+# Récupérer tous les rendez-vous d'un patient spécifique par son ID
+
+@routes.route("/appointments/patient/<int:patient_id>", methods=["GET"])
+def get_appointments_by_patient(patient_id):
+    appointments = Appointment.query.filter_by(patient_id=patient_id).all()
+    if not appointments:
+        return jsonify({"message": "No appointments found for this patient"}), 404
+
+    appointments_list = []
+    for a in appointments:
+        # Vérifier si le médecin existe en appelant l'API du service utilisateur
+        doctor_id = a.doctor_id
+        user_service_url = f"{USER_SERVICE_URL}/{doctor_id}/exists"
+        try:
+            response = requests.get(user_service_url)
+            if response.status_code != 200:
+                return jsonify({"message": "Error checking doctor existence", "error": response.json()}), response.status_code
+            doctor_exists = response.json()
+            if not doctor_exists:
+                continue  # Si le médecin n'existe pas, on passe à l'élément suivant
+        except requests.RequestException as e:
+            return jsonify({"message": f"Error communicating with User Service: {str(e)}"}), 500
+        
+        # Formater la date de début et de fin du rendez-vous pour un format lisible
+        start_time = a.start_time.strftime("%Y-%m-%d %H:%M:%S")
+        end_time = a.end_time.strftime("%Y-%m-%d %H:%M:%S")
+
+        appointments_list.append({
+            "id": a.id,
+            "doctor_id": doctor_id,
+            "start_time": start_time,
+            "end_time": end_time,
+            "notes": a.notes,
+            "status": a.status,  # Inclure le statut du rendez-vous
+            "patient_id": a.patient_id
+        })
+    
+    return jsonify(appointments_list)
 
 
 
