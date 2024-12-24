@@ -14,6 +14,16 @@ from client_grpc.Patient_Service import check_patient_exists
 from client_grpc.Patient_Service import get_patient_by_email
 
 routes = Blueprint("routes", __name__)
+@routes.route('/actuator/health', methods=['GET'])
+def health():
+    try:
+        # Vérifier l'état de la base de données et d'autres services si nécessaire
+        return jsonify(status="UP"), 200
+    except Exception as e:
+        # Log l'erreur pour aider au diagnostic
+        print(f"Erreur dans l'endpoint health: {e}")
+        return jsonify(status="DOWN", error=str(e)), 500
+
 
 # Configuration pour l'URL du service utilisateur
 USER_SERVICE_URL = "http://localhost:8081/api/medecins"

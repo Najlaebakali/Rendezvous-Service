@@ -1,4 +1,4 @@
-from flask_eureka import Eureka
+"""from flask_eureka import Eureka
 import os
 
 def configure_eureka(app):
@@ -23,4 +23,4 @@ def configure_eureka(app):
 
     # Add the default Eureka blueprint
     from flask_eureka.eureka import eureka_bp
-    app.register_blueprint(eureka_bp)
+    app.register_blueprint(eureka_bp)"""
