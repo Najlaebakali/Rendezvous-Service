@@ -46,10 +46,11 @@ CORS(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+eureka_server = source.get('DISCOVERY_SERVICE_URL', 'http://localhost:8761/eureka')
 # Configuration de Eureka pour l'enregistrement du service
 eureka_client.init(
     app_name=service_name,
-    eureka_server=source['DISCOVERY_SERVICE_URL'],
+    eureka_server=eureka_server,
     instance_port=5000,
     instance_host='localhost'
 )

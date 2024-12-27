@@ -20,7 +20,7 @@ spec:
             - containerPort: 5000
           env:
             - name: DISCOVERY_SERVICE_URL
-              value: http://discovery-service.default.svc.cluster.local:8762/eureka
+              value: http://discovery-service.default.svc.cluster.local:8761/eureka
             - name: CONFIG_SERVICE_URL
               value: http://config-service.default.svc.cluster.local:9999
           readinessProbe:

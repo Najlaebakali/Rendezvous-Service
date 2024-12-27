@@ -26,7 +26,7 @@ def health():
 
 
 # Configuration pour l'URL du service utilisateur
-USER_SERVICE_URL = "http://localhost:8081/api/medecins"
+USER_SERVICE_URL = "http://localhost:8082/api/medecins"
 
 # Route de la page d'accueil
 @routes.route('/')
